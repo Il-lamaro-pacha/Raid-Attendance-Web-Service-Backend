@@ -1,0 +1,21 @@
+from enum import Enum
+
+class RaidID(str, Enum):
+    nax_10 = "nax_10"
+    nax_25 = "nax_25"
+    os_10 = "os_10"
+    os_25 = "os_25"
+    eoe_10 = "eoe_10"
+    eoe_25 = "eoe_25"
+    voa_10 = "voa_10"
+    voa_25 = "voa_25"
+    ulduar_10 = "ulduar_10"
+    ulduar_25 = "ulduar_25"
+    toc_10 = "toc_10"
+    toc_25 = "toc_25"
+    tgc_10 = "tgc_10"
+    tgc_25 = "tgc_25"
+    icc_10 = "icc_10"
+    icc_25 = "icc_25"
+    rs_10 = "rs_10"
+    rs_25 = "rs_25"

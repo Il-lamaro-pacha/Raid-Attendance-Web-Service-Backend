@@ -1,0 +1,7 @@
+fastapi==0.136.1
+firebase_admin==7.4.0
+logging==0.4.9.6
+google-cloud-firestore==2.27.0
+python-dotenv==1.2.2
+uvicorn==0.46.0
+pydantic==2.13.3
