@@ -34,8 +34,6 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-cred = credentials.Certificate(os.path.join(os.getcwd(), "etc", "secrets", os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE_NAME")))
-
 router = APIRouter()
 app = FastAPI()
     
@@ -50,6 +48,30 @@ app.add_middleware(
 attendance_controller = AttendanceController()
 auth_controller = AuthController()
 
+def set_credential_path():
+
+    filename = os.getenv('FIREBASE_SERVICE_ACCOUNT_FILE_NAME')
+    if not filename:
+        raise RuntimeError("Environment variable FIREBASE_SERVICE_ACCOUNT_FILE_NAME is not set")
+
+    possible_paths = [
+        f"/etc/secrets/{filename}",                           # Render
+        os.path.join(os.getcwd(), "etc", "secrets", filename) # Local
+    ]
+
+    credentials_path = next((p for p in possible_paths if os.path.exists(p)), None)
+
+    if credentials_path is None:
+        raise FileNotFoundError(
+            f"Config path not found. "
+            f"Paths inspected:\n" + "\n".join(possible_paths)
+        )
+
+    return credentials_path
+
+_CREDENTIAL_PATH = set_credential_path()
+cred = credentials.Certificate(_CREDENTIAL_PATH)
+
 def get_user_context(
         token: dict = Depends(verify_firebase_token)
     ) -> UserContext:
@@ -63,7 +85,7 @@ def get_user_context(
 def init_firebase():
     if not firebase_admin._apps:
         cred = credentials.Certificate(
-            os.path.join(os.getcwd(), "etc", "secrets", os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE_NAME"))
+            os.path.join(_CREDENTIAL_PATH)
         )
         firebase_admin.initialize_app(cred)
 

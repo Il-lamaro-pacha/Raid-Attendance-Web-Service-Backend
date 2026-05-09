@@ -13,12 +13,24 @@ class FirestoreAttendanceRepository():
 
         self._logger.info("Initializing repository instance")
 
-        credentials_path = os.path.join(
-            os.getcwd(),
-            'etc',
-            'secrets',
-            os.getenv('FIRESTORE_KEY_FILE_NAME')
-        )
+        filename = os.getenv('FIRESTORE_KEY_FILE_NAME')
+        if not filename:
+            raise RuntimeError("Environment variable FIRESTORE_KEY_FILE_NAME is not set")
+
+        possible_paths = [
+            f"/etc/secrets/{filename}",                           # Render
+            os.path.join(os.getcwd(), "etc", "secrets", filename) # Local
+        ]
+
+        credentials_path = next((p for p in possible_paths if os.path.exists(p)), None)
+
+        if credentials_path is None:
+            raise FileNotFoundError(
+                f"Nessun file di configurazione trovato. "
+                f"Percorsi controllati:\n" + "\n".join(possible_paths)
+            )
+
+        logging.info(f"Using Firebase credentials from: {credentials_path}")
 
         self._logger.debug(f"Credentials path resolved -> {credentials_path}")
 
