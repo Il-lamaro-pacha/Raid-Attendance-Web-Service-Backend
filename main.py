@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-cred = credentials.Certificate(os.path.join(os.getcwd(), "keys", os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE_NAME")))
+cred = credentials.Certificate(os.path.join(os.getcwd(), "etc", os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE_NAME")))
 
 router = APIRouter()
 app = FastAPI()
@@ -63,7 +63,7 @@ def get_user_context(
 def init_firebase():
     if not firebase_admin._apps:
         cred = credentials.Certificate(
-            os.path.join(os.getcwd(), "keys", os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE_NAME"))
+            os.path.join(os.getcwd(), "etc", os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE_NAME"))
         )
         firebase_admin.initialize_app(cred)
 

@@ -15,7 +15,7 @@ class FirestoreAttendanceRepository():
 
         credentials_path = os.path.join(
             os.getcwd(),
-            'keys',
+            'etc',
             os.getenv('FIRESTORE_KEY_FILE_NAME')
         )
 
