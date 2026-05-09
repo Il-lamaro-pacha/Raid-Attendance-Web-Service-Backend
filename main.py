@@ -91,6 +91,10 @@ def init_firebase():
 
 init_firebase()
 
+@router.get("/")
+def welcome():
+    return "Welcome to Raid Attendance Service Web Server"
+
 @router.get("/attendance_service", response_model=list[AttendanceResponse])
 def get_attendance_list(raid_id: RaidID, raid_type: str, context: UserContext = Depends(get_user_context)):
     logging.info(f"[{context.username}]: Called 'get_attendance_list' endpoint - GET Request")
