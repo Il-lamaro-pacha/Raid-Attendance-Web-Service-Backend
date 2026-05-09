@@ -73,3 +73,10 @@ class AttendanceController():
                                                       raid_id=raid_id, 
                                                       rollbacks=rollbacks, 
                                                       context=context)
+
+    def publish_list(self, raid_type, raid_id, attendance_list, context):
+        self._logger.info(f"[{context.username}]: Invoked 'publish_list' from controller")
+        return self._attendance_service.publish_list(raid_type=raid_type, 
+                                                     raid_id=raid_id, 
+                                                     attendance_list=attendance_list, 
+                                                     context=context)

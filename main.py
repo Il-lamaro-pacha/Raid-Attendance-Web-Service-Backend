@@ -15,6 +15,7 @@ from src.auth._check_token import verify_firebase_token
 
 from src.schemas.RaidID import RaidID
 from src.schemas.AttendanceResponse import AttendanceResponse
+from src.schemas.AttendancePublishingList import AttendancePublishingList
 from src.schemas.SoftresRequest import SoftresRequest
 from src.schemas.AttendanceCreateRequest import AttendanceCreateRequest
 from src.schemas.AttendancePreviewRequest import AttendancePreviewRequest
@@ -144,6 +145,14 @@ def rollback_raid(raid_type: str, raid_id: str, rollbacks: ListRollbackItem, con
                                                raid_id=raid_id, 
                                                rollbacks = rollbacks.rollback, 
                                                context=context)
+
+@router.post("/attendance_service/publish_list")
+def publish_list(raid_type: str, raid_id: str, attendance_list: AttendancePublishingList, context: UserContext = Depends(get_user_context)):
+    logging.info(f"[{context.username}]: Called 'publish_list' endpoint - GET Request")
+    return attendance_controller.publish_list(raid_type=raid_type, 
+                                              raid_id=raid_id, 
+                                              attendance_list=attendance_list.attendance_list, 
+                                              context=context)
 
 app.include_router(router) 
 

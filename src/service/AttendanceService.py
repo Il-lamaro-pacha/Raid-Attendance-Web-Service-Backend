@@ -10,6 +10,7 @@ from src.schemas.AttendancePreviewResponse import AttendancePreviewResponse
 from src.schemas.WowClass import WowClass
 from src.schemas.AttendanceHistoryResponse import AttendanceHistoryResponse
 
+from src.service.HTMLGitHubPublisher import HTMLGitHubPublisher
 
 class AttendanceService():
 
@@ -481,3 +482,10 @@ class AttendanceService():
         self._logger.info(f"[{context.username}]: Rollback completed successfully")
 
         return messages
+
+    def publish_list(self, raid_type, raid_id, attendance_list, context):
+
+        self._logger.info(f"[{context.username}]: Invoked 'publish_list' from service")
+        
+        html_github_publisher = HTMLGitHubPublisher()
+        return html_github_publisher.publish_list(raid_type=raid_type, raid_id=raid_id, attendance_list=attendance_list, context=context)
