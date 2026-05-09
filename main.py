@@ -169,19 +169,3 @@ def register_user(user: RegistrationUserCreate, token: dict = Depends(verify_fir
     return attendance_controller.register_user(user = user)
 
 app.include_router(router) 
-
-if __name__ == "__main__":
-    host = os.getenv("APP_HOST", "127.0.0.1")
-    port = int(os.getenv("APP_PORT", 8000))
-    reload = os.getenv("APP_RELOAD", "false").lower() == "true"
-    log_level = os.getenv("APP_LOG_LEVEL", "info")
-
-    logger.info(f"Starting server on {host}:{port} (reload={reload})")
-
-    uvicorn.run(
-        "main:app",
-        host=host,
-        port=port,
-        reload=reload,
-        log_level=log_level
-    )
