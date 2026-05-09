@@ -80,3 +80,14 @@ class AttendanceController():
                                                      raid_id=raid_id, 
                                                      attendance_list=attendance_list, 
                                                      context=context)
+
+    def get_player_history(self, raid_type, raid_id, player_name, context):
+        self._logger.info(f"[{context.username}]: Invoked 'get_player_history' from controller")
+        return self._attendance_service.get_player_history(raid_type=raid_type, 
+                                                           raid_id=raid_id, 
+                                                           player_name=player_name, 
+                                                           context=context)
+    
+    def register_user(self, user):
+        self._logger.info(f"Invoked 'register_user' from controller")
+        return self._attendance_service.register_user(user=user) 

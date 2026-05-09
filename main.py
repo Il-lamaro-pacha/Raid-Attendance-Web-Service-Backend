@@ -24,6 +24,7 @@ from src.schemas.AttendanceUpdateRequest import AttendanceUpdateRequest
 from src.schemas.UserContext import UserContext
 from src.schemas.HistoryObject import HistoryObject
 from src.schemas.ListRollbackItem import ListRollbackItem
+from src.schemas.RegistrationUserCreate import RegistrationUserCreate
 
 from src.controller.AttendanceController import AttendanceController
 from src.controller.AuthController import AuthController
@@ -153,6 +154,19 @@ def publish_list(raid_type: str, raid_id: str, attendance_list: AttendancePublis
                                               raid_id=raid_id, 
                                               attendance_list=attendance_list.attendance_list, 
                                               context=context)
+
+@router.get("/attendance_service/get_player_history")
+def get_player_history(raid_type: str, raid_id: str, player_name: str, context: UserContext = Depends(get_user_context)):
+    logging.info(f"[{context.username}]: Called 'get_player_history' endpoint - GET Request")
+    return attendance_controller.get_player_history(raid_type=raid_type,
+                                                    raid_id = raid_id,
+                                                    player_name=player_name,
+                                                    context=context)
+
+@router.post("/attendance_service/registration")
+def register_user(user: RegistrationUserCreate, token: dict = Depends(verify_firebase_token)):
+    logging.info(f"Called 'register_user' endpoint - POST Request")
+    return attendance_controller.register_user(user = user)
 
 app.include_router(router) 
 

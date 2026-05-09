@@ -489,3 +489,20 @@ class AttendanceService():
         
         html_github_publisher = HTMLGitHubPublisher()
         return html_github_publisher.publish_list(raid_type=raid_type, raid_id=raid_id, attendance_list=attendance_list, context=context)
+
+    def get_player_history(self, raid_type, raid_id, player_name, context):
+
+        self._logger.info(f"[{context.username}]: Invoked 'get_player_history' from service")
+        return self._attendance_repository.get_player_history(raid_type=raid_type,
+                                                              raid_id=raid_id,
+                                                              player_name=player_name,
+                                                              server=context.server,
+                                                              guild_id=context.guild_id)
+
+    def register_user(self, user):
+
+        self._logger.info(f"Invoked 'register_user' from service")
+        return self._attendance_repository.register_user(email=user.email,
+                                                         username=user.username,
+                                                         guild_id=user.guild_id,
+                                                         server=user.server)

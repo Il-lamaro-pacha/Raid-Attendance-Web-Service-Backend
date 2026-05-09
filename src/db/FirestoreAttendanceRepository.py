@@ -424,3 +424,102 @@ class FirestoreAttendanceRepository():
         self._logger.debug(f"Total deleted documents -> {deleted_count}")
 
         self._logger.info("All attendance documents deleted successfully")
+    
+    def get_player_history(self, raid_id, raid_type, player_name, server, guild_id):
+
+        self._logger.info("Invoked 'get_player_history'")
+        self._logger.debug(
+            f"Input parameters -> Server: {server} - Guild ID: {guild_id} - "
+            f"Raid Type: {raid_type} - Raid ID: {raid_id} - Player: {player_name}"
+        )
+
+        base_ref = (
+            self._db.collection(server)
+            .document(guild_id)
+            .collection(raid_type)
+            .document(raid_id)
+            .collection("history")
+        )
+
+        self._logger.debug("Base history reference built successfully")
+
+        results = []
+        docs = base_ref.stream()
+
+        self._logger.debug("Streaming history documents...")
+
+        total_partecipations = 0
+
+        for doc in docs:
+
+            self._logger.debug(f"Processing history document -> {doc.id}")
+
+            timestamp = doc.id
+
+            subcollection = next(
+                base_ref.document(doc.id).collections(),
+                None
+            )
+
+            if subcollection is None:
+
+                self._logger.debug(f"No subcollections found for document '{doc.id}'")
+                continue
+
+            attendances = subcollection.stream()
+
+            for attendance in attendances:
+
+                self._logger.debug(f"Checking attendance document -> {attendance.id}")
+
+                if attendance.id == player_name.lower():
+
+                    self._logger.debug(f"Match found for player '{player_name}'")
+
+                    total_partecipations += 1
+
+                    data = attendance.to_dict() or {}
+
+                    self._logger.debug(f"Attendance data -> {data}")
+
+                    results.append({
+                        "timestamp": timestamp,
+                        "name": attendance.id,
+                        "item": data.get("new_item")
+                    })
+
+        self._logger.debug(f"Total participations counted -> {total_partecipations}")
+        self._logger.debug("Final player history result...")
+        self._logger.debug(results)
+
+        self._logger.info("Player history fetched successfully")
+
+        return {
+            "total_attendances": total_partecipations,
+            "details": results
+        }
+    
+    def register_user(self, email, username, guild_id, server):
+
+        self._logger.info("Invoked 'register_user'")
+        self._logger.debug(
+            f"Input parameters -> Email: {email} - Username: {username} - "
+            f"Guild ID: {guild_id} - Server: {server}"
+        )
+
+        self._logger.debug("Building user document reference...")
+
+        base_ref = self._db.collection('users').document(email)
+
+        self._logger.debug(f"Writing user document for '{email}'")
+
+        base_ref.set({
+            "email": email,
+            "username": username,
+            "guild_id": guild_id,
+            "server": server
+        })
+
+        self._logger.info(f"User '{email}' registered successfully")
+
+        return True
