@@ -190,7 +190,7 @@ def get_player_history(raid_type: str, raid_id: str, player_name: str, context: 
                                                     context=context)
 
 @router.post("/attendance_service/registration")
-def register_user(user: RegistrationUserCreate, token: dict = Depends(verify_firebase_token)):
+def register_user(user: RegistrationUserCreate):
     logging.info(f"Called 'register_user' endpoint - POST Request")
     return attendance_controller.register_user(user = user)
 
