@@ -5,6 +5,7 @@ import tempfile
 import shutil
 import pandas as pd
 from git import Repo
+from datetime import datetime
 
 class HTMLGitHubPublisher():
 
@@ -51,7 +52,7 @@ class HTMLGitHubPublisher():
             guild_folder_path = os.path.join(folder_server_path, context.guild_id)
             os.makedirs(guild_folder_path, exist_ok=True)
 
-            html_content = self._create_html_content(raid_id, attendance_list, context)
+            html_content = self._create_html_content(raid_id=raid_id, attendance_list=attendance_list, context=context, date=datetime.now().timestamp())
             html_path = os.path.join(guild_folder_path, f"{raid_type}_{raid_id}.html")
             
             with open(html_path, "w", encoding="utf-8") as f:
@@ -86,10 +87,12 @@ class HTMLGitHubPublisher():
 
         return final_link
 
-    def _create_html_content(self, raid_id, attendance_list, context):
-        
-        self._logger.info(f"[{context.username}]: Invoked '_create_html_content' from HTMLGitHubPublisher")
-        
+    def _create_html_content(self, raid_id, attendance_list, context, date):
+
+        self._logger.info(
+            f"[{context.username}]: Invoked '_create_html_content' from HTMLGitHubPublisher"
+        )
+
         _table_data = []
 
         for attendance in attendance_list:
@@ -99,9 +102,14 @@ class HTMLGitHubPublisher():
             item_id = attendance.item_id
             score = attendance.score
             player_class = attendance.char_class
+
             color = self._CLASS_COLORS.get(player_class, "#FFFFFF")
 
-            name_html = f'<a href="https://www.chromiecraft.com/en/armory/?character/ChromieCraft/{name}" target="_blank" style="color:{color};">{name.capitalize()}</a>'
+            name_html = (
+                f'<a href="https://www.chromiecraft.com/en/armory/?character/ChromieCraft/{name}" '
+                f'target="_blank" style="color:{color};">'
+                f'{name.capitalize()}</a>'
+            )
 
             item_html = (
                 f'<a href="https://www.wowhead.com/wotlk/item={item_id}" '
@@ -115,7 +123,13 @@ class HTMLGitHubPublisher():
         headers = ["Player", "Reserve", "Score"]
 
         df = pd.DataFrame(_table_data, columns=headers)
-        table_html = df.to_html(index=False, classes="attendance-table", border=0, escape=False)
+
+        table_html = df.to_html(
+            index=False,
+            classes="attendance-table",
+            border=0,
+            escape=False
+        )
 
         logo_url = os.getenv("GITHUB_LOGO_URL")
         gif_url = os.getenv("GITHUB_DANCE_GIF_URL")
@@ -124,17 +138,23 @@ class HTMLGitHubPublisher():
 
         raid_name = os.getenv(raid_id.upper())
 
+        formatted_date = datetime.fromtimestamp(date).strftime("%d/%m/%Y %H:%M")
+
         full_html = f"""
         <!DOCTYPE html>
         <html lang="en">
+
         <head>
+
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
             <title>{raid_name} - Attendance List</title>
 
             <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 
             <style>
+
                 html, body {{
                     height: 100%;
                     margin: 0;
@@ -159,7 +179,8 @@ class HTMLGitHubPublisher():
                     margin: 20px 40px;
                 }}
 
-                .header-left img, .header-right img {{
+                .header-left img,
+                .header-right img {{
                     height: 90px;
                     border-radius: 12px;
                 }}
@@ -169,17 +190,44 @@ class HTMLGitHubPublisher():
                     font-family: 'Cinzel', serif;
                     font-size: 2.3em;
                     font-weight: 700;
-                    margin: 10px 0 10px 0;
+                    margin: 10px 0 5px 0;
                     color: #CCAA00;
                     letter-spacing: 1.5px;
                     animation: pulseGlow 5s ease-in-out infinite;
                 }}
 
+                .last-update {{
+                    text-align: center;
+                    font-family: Arial, sans-serif;
+                    font-size: 0.95em;
+                    color: #CCAA00;
+                    margin-bottom: 18px;
+                    opacity: 0.9;
+                }}
+
                 @keyframes pulseGlow {{
-                    0%, 100% {{ text-shadow: none; }}
-                    25% {{ text-shadow: 0 0 4px rgba(204,170,0,0.4), 0 0 10px rgba(204,170,0,0.3); }}
-                    50% {{ text-shadow: 0 0 6px rgba(204,170,0,0.6), 0 0 14px rgba(204,170,0,0.45), 0 0 24px rgba(204,170,0,0.35); }}
-                    75% {{ text-shadow: 0 0 4px rgba(204,170,0,0.4), 0 0 10px rgba(204,170,0,0.3); }}
+                    0%, 100% {{
+                        text-shadow: none;
+                    }}
+
+                    25% {{
+                        text-shadow:
+                            0 0 4px rgba(204,170,0,0.4),
+                            0 0 10px rgba(204,170,0,0.3);
+                    }}
+
+                    50% {{
+                        text-shadow:
+                            0 0 6px rgba(204,170,0,0.6),
+                            0 0 14px rgba(204,170,0,0.45),
+                            0 0 24px rgba(204,170,0,0.35);
+                    }}
+
+                    75% {{
+                        text-shadow:
+                            0 0 4px rgba(204,170,0,0.4),
+                            0 0 10px rgba(204,170,0,0.3);
+                    }}
                 }}
 
                 .search-container {{
@@ -269,21 +317,32 @@ class HTMLGitHubPublisher():
                     height: auto;
                     border-radius: 6px;
                 }}
+
             </style>
+
         </head>
 
         <body>
 
             <header>
+
                 <div class="header-left">
                     <img src="{logo_url}" alt="GDA Logo">
                 </div>
+
                 <div class="header-right">
                     <img src="{chromie_logo}" alt="Chromie">
                 </div>
+
             </header>
 
-            <div class="table-title">{raid_name} - Attendance List</div>
+            <div class="table-title">
+                {raid_name} - Attendance List
+            </div>
+
+            <div class="last-update">
+                Last Update: {formatted_date}
+            </div>
 
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Search...">
@@ -299,40 +358,72 @@ class HTMLGitHubPublisher():
             <script src="https://wow.zamimg.com/widgets/power.js"></script>
 
             <script>
+
                 const searchInput = document.getElementById('searchInput');
                 const table = document.querySelector('.attendance-table');
                 const tbody = table.tBodies[0];
 
                 searchInput.addEventListener('input', () => {{
+
                     const filter = searchInput.value.toLowerCase();
+
                     Array.from(tbody.rows).forEach(row => {{
+
                         const rowText = row.innerText.toLowerCase();
-                        row.style.display = rowText.includes(filter) ? '' : 'none';
+
+                        row.style.display = rowText.includes(filter)
+                            ? ''
+                            : 'none';
                     }});
                 }});
 
                 Array.from(table.querySelectorAll('th')).forEach((th, index) => {{
+
                     let asc = true;
+
                     const arrow = document.createElement('span');
                     arrow.className = 'sort-arrow';
+
                     th.appendChild(arrow);
+
                     th.addEventListener('click', () => {{
+
                         const rows = Array.from(tbody.rows);
+
                         rows.sort((a, b) => {{
+
                             const valA = a.cells[index].innerText.toLowerCase();
                             const valB = b.cells[index].innerText.toLowerCase();
-                            if (!isNaN(valA) && !isNaN(valB)) return asc ? valA - valB : valB - valA;
-                            return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+
+                            if (!isNaN(valA) && !isNaN(valB)) {{
+                                return asc
+                                    ? valA - valB
+                                    : valB - valA;
+                            }}
+
+                            return asc
+                                ? valA.localeCompare(valB)
+                                : valB.localeCompare(valA);
+
                         }});
+
                         rows.forEach(row => tbody.appendChild(row));
-                        Array.from(table.querySelectorAll('.sort-arrow')).forEach(a => a.textContent = '');
+
+                        Array.from(
+                            table.querySelectorAll('.sort-arrow')
+                        ).forEach(a => a.textContent = '');
+
                         arrow.textContent = asc ? '▲' : '▼';
+
                         asc = !asc;
+
                     }});
                 }});
+
             </script>
 
         </body>
+
         </html>
         """
 

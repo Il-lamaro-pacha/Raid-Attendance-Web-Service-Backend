@@ -220,3 +220,6 @@ __marimo__/
 # Keys
 keys/
 etc/
+
+# Local Folder
+local/
